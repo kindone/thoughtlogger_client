@@ -1,0 +1,66 @@
+import { IDGenerator } from 'app/utils/IDGenerator'
+import { EditorState, IEditorState } from './EditorState'
+
+export type EditorStateDictionary = { [id in string]: EditorState }
+
+export type IEditorStateDictionary = { [id in string]: IEditorState }
+
+export interface IEditingState {
+    editors: IEditorStateDictionary
+    focusedEditorId: string
+}
+
+export class EditingState implements IEditingState {
+    public static addEmptyEditor(obj: EditingState) {
+        const editorId = IDGenerator.generate()
+        const newEditor = EditorState.createUntitledEditor(editorId)
+
+        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
+    }
+
+    public static addEditorForDoc(obj: EditingState, docId: string, uri:string, content?: string) {
+        const editorId = IDGenerator.generate()
+        const newEditor = content ? EditorState.openEditorLoaded(editorId, docId, uri, content) : EditorState.openEditorToBeLoaded(editorId, docId, uri)
+
+        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
+    }
+
+    public static updateEditor(obj: EditingState, editorId: string, editor: EditorState) {
+        return new EditingState({ ...obj.editors, [editorId]: editor }, editorId) // FIXME focusedEditorId
+    }
+
+    public static setFocused(obj: EditingState, editorId: string) {
+        if (EditingState.find(obj, editorId)) return new EditingState(obj.editors, editorId)
+        else return obj
+    }
+
+    public static isFocused(obj: EditingState, editorId: string) {
+        return obj.focusedEditorId === editorId
+    }
+
+    public static find(obj: EditingState, editorId: string):EditorState {
+        return obj.editors[editorId]
+    }
+
+    public static findIdByDocId(obj: EditingState, docId: string) {
+        for (const editorId in obj.editors) {
+            if (obj.editors[editorId].docId === docId) return editorId
+        }
+        return undefined
+    }
+
+    public static findByDocId(obj: EditingState, docId: string) {
+        for (const editorId in obj.editors) {
+            if (obj.editors[editorId].docId === docId) return obj.editors[editorId]
+        }
+        return undefined
+    }
+
+    public readonly editors: EditorStateDictionary
+    public readonly focusedEditorId: string
+
+    constructor(editors: EditorStateDictionary = {}, focusedEditorId = '') {
+        this.editors = editors
+        this.focusedEditorId = focusedEditorId
+    }
+}

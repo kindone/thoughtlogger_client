@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Thought Logger</title>
+    <script>
+      (function() {
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = './dist/style.css';
+        // HACK: Writing the script path should be done with webpack
+        document.getElementsByTagName('head')[0].appendChild(link);
+
+      }());
+    </script>
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.2.6/quill.snow.css"></link>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css"></link>
+  </head>
+   <body>
+    <div id="root"></div>
+    <script>
+      {
+        const script = document.createElement('script');
+        script.src = './bundle.js';
+        // HACK: Writing the script path should be done with webpack
+        document.body.appendChild(script);
+      }
+    </script>
+  </body>
+</html>

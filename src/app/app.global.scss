@@ -1,0 +1,26 @@
+html {
+    height: 100%;
+}
+body {
+    margin: 0;
+    height: 100%;
+}
+
+// div#root
+// {
+// }
+
+.quill-container {
+    height: auto;
+    min-height: 100%; 
+}
+.quill-container .ql-editor {
+    font-size: 18px;
+    overflow-y: visible; 
+}
+
+.scrolling-container {
+    height: 100%;
+    min-height: 100%;
+    overflow-y: auto;
+}
