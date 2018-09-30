@@ -1,5 +1,5 @@
 import { IActionWithPayload } from 'app/actions/helpers'
-import { LoadDocListAsync, OpenDoc } from 'app/actions/NavigationActions'
+import { LoadDocListAsync, OpenDocOnCurrentTab, OpenDocOnNewTab } from 'app/actions/NavigationActions'
 import Navigation, { INavigationProps } from 'app/components/Navigation'
 import ThoughtLogggerState from 'app/store/ThoughtLoggerState'
 import { connect } from 'react-redux'
@@ -14,8 +14,11 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<{ thoughtLoggerApp: ThoughtL
         onRefresh: () => {
             dispatch(LoadDocListAsync())
         },
-        onOpen: (docId: string, uri:string) => {
-            dispatch(OpenDoc(docId, uri))
+        onOpenOnNewTab: (docId: string, uri:string) => {
+            dispatch(OpenDocOnNewTab(docId, uri))
+        },
+        openDocumentOnCurrentTab: (docId: string, uri:string) => {
+            dispatch(OpenDocOnCurrentTab(docId, uri))
         }
     }
 }

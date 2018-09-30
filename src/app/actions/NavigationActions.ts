@@ -4,12 +4,23 @@ import ThoughtLogggerState from 'app/store/ThoughtLoggerState'
 import Documents from 'app/utils/Documents'
 import { Dispatch } from 'redux'
 
+export const OPEN_DOC_ON_NEW_TAB = 'navigation/open_doc_on_new_tab'
+export const OPEN_DOC_ON_CURRENT_TAB = 'navigation/open_doc_on_cur_tab'
 
-export const OPEN_DOC = 'navigation/open_doc'
 export const LOAD_DOC_LIST = 'navigation/load_doc_list'
 export const LOAD_DOC_LIST_REQUEST = 'navigation/load_doc_list_request'
 export const LOAD_DOC_LIST_SUCCESS = 'navigation/load_doc_list_success'
 export const LOAD_DOC_LIST_FAIL = 'navigation/load_doc_list_fail'
+
+
+export function OpenDocOnNewTab(docId:string, uri:string) {
+    return createActionWithPayload(OPEN_DOC_ON_NEW_TAB, { docId, uri})
+}
+
+
+export function OpenDocOnCurrentTab(docId:string, uri:string) {
+    return createActionWithPayload(OPEN_DOC_ON_CURRENT_TAB, {docId, uri})
+}
 
 function LoadDocList() {
     return createAction(LOAD_DOC_LIST_REQUEST)
@@ -37,17 +48,9 @@ export function LoadDocListAsync() {
     }
 }
 
-export function OpenDoc(docId:string, uri:string) {
-    return createActionWithPayload(OPEN_DOC, {id: docId, uri})
-}
 
 export type LoadDocListAsyncAction = ReturnType<typeof LoadDocList>
 export type LoadDocListSuccessAction = ReturnType<typeof LoadDocListSuccess>
 export type LoadDocListFailAction = ReturnType<typeof LoadDocListFail>
-export type OpenDocAction = ReturnType<typeof OpenDoc>
-
-export type NavigationAction =
- LoadDocListAsyncAction |
- LoadDocListSuccessAction |
- LoadDocListFailAction |
- OpenDocAction
+export type OpenDocOnNewTabAction = ReturnType<typeof OpenDocOnNewTab>
+export type OpenDocOnCurrentTabAction = ReturnType<typeof OpenDocOnCurrentTab>

@@ -1,3 +1,4 @@
+import { LoadDocContentAsync, SaveDocContentAsync } from 'app/actions/DocumentActions'
 import { IActionWithPayload } from 'app/actions/helpers'
 import Editor, { IEditorProps } from 'app/components/Editor'
 import { EditingState } from 'app/store/EditingState'
@@ -7,10 +8,9 @@ import { connect } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 import {
     ChangeEditorContent,
-    LoadDocContentAsync,
-    SaveDocAs,
-    SaveDocContentAsync
+    SaveDocAs
 } from '../actions/EditorActions'
+
 
 
 const mapStateToProps = (state: { thoughtLoggerApp: ThoughtLogggerState }, ownProps: { id: string }): IEditorProps => {

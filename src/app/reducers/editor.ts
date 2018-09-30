@@ -1,14 +1,19 @@
+import { EditorAction } from 'app/actions'
 import {
-    CHANGE_EDITOR_CONTENT,
-    EditorAction,
     LOAD_DOC_CONTENT_FAIL,
     LOAD_DOC_CONTENT_REQUEST,
     LOAD_DOC_CONTENT_SUCCESS,
     SAVE_DOC_CONTENT_FAIL,
     SAVE_DOC_CONTENT_SUCCESS,
-    SAVE_DOC_FIRST_TIME_SUCCESS
+    SAVE_DOC_FIRST_TIME_SUCCESS } from 'app/actions/DocumentActions'
+import {
+    CHANGE_EDITOR_CONTENT
 } from 'app/actions/EditorActions'
+import { OPEN_DOC_ON_CURRENT_TAB } from 'app/actions/NavigationActions'
 import { EditorState } from 'app/store/EditorState'
+
+
+
 
 export function editor(state: EditorState, action: EditorAction): EditorState {
     switch (action.type) {
@@ -32,6 +37,10 @@ export function editor(state: EditorState, action: EditorAction): EditorState {
         case SAVE_DOC_FIRST_TIME_SUCCESS: {
             const document = action.payload
             return EditorState.setPersisted(state, document.docId, document.uri)
+        }
+        case OPEN_DOC_ON_CURRENT_TAB: {
+            const { docId, uri } = action.payload
+            return EditorState.changeDocument(state, docId, uri)
         }
         case CHANGE_EDITOR_CONTENT:
             return EditorState.updateContent(state, action.payload.content)

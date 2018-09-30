@@ -1,17 +1,17 @@
-import { editor } from './editor'
-
+import { EditingAction } from 'app/actions'
 import {
-    CHANGE_ACTIVE_EDITOR,
-    CHANGE_EDITOR_CONTENT,
-    CREATE_EMPTY_EDITOR,
-    EditingAction,
-    LOAD_DOC_CONTENT_SUCCESS,
-    SAVE_DOC_FIRST_TIME_SUCCESS
-} from '../actions/EditorActions'
-
-import { OPEN_DOC } from 'app/actions/NavigationActions'
+  LOAD_DOC_CONTENT_SUCCESS,
+  SAVE_DOC_FIRST_TIME_SUCCESS
+  } from 'app/actions/DocumentActions'
+import {
+  CHANGE_ACTIVE_EDITOR,
+  CHANGE_EDITOR_CONTENT,
+  CREATE_EMPTY_EDITOR
+  } from 'app/actions/EditorActions'
+import { OPEN_DOC_ON_CURRENT_TAB, OPEN_DOC_ON_NEW_TAB } from 'app/actions/NavigationActions'
 import { Document } from 'app/store/Document'
 import { EditingState } from 'app/store/EditingState'
+import { editor } from './editor'
 
 export function editing(state: EditingState, action: EditingAction): EditingState {
     switch (action.type) {
@@ -19,13 +19,28 @@ export function editing(state: EditingState, action: EditingAction): EditingStat
             return EditingState.setFocused(state, action.payload.id)
         case CREATE_EMPTY_EDITOR:
             return EditingState.addEmptyEditor(state)
-        case OPEN_DOC: {
-            const editorState = EditingState.findByDocId(state, action.payload.id)
+        case OPEN_DOC_ON_NEW_TAB: {
+            const editorState = EditingState.findByDocId(state, action.payload.docId)
             if(editorState) {
               return EditingState.setFocused(state, editorState.id)
             }
             else {
-              return EditingState.addEditorForDoc(state, action.payload.id, action.payload.uri)
+              return EditingState.addEditorForDoc(state, action.payload.docId, action.payload.uri)
+            }
+        }
+        case OPEN_DOC_ON_CURRENT_TAB: {
+            const editorState = EditingState.findByDocId(state, action.payload.docId)
+            if(editorState) {
+              return EditingState.setFocused(state, editorState.id)
+            }
+            else {
+                const curEditorState = EditingState.find(state, state.focusedEditorId)
+                if(curEditorState.isPersisted)
+                    return EditingState.setFocused(
+                        EditingState.updateEditor(state, curEditorState.id, editor(curEditorState, action)),
+                        curEditorState.id)
+                else
+                    return EditingState.addEditorForDoc(state, action.payload.docId, action.payload.uri)
             }
         }
         case LOAD_DOC_CONTENT_SUCCESS: {
@@ -36,7 +51,6 @@ export function editing(state: EditingState, action: EditingAction): EditingStat
               return state
 
             return EditingState.updateEditor(state, editorState.id, editor(editorState, action))
-
         }
         case SAVE_DOC_FIRST_TIME_SUCCESS: {
             const document = action.payload

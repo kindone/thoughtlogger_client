@@ -1,4 +1,5 @@
-import { LOAD_DOC_LIST_SUCCESS, NavigationAction } from 'app/actions/NavigationActions'
+import { NavigationAction } from 'app/actions'
+import { LOAD_DOC_LIST_SUCCESS } from 'app/actions/NavigationActions'
 import { NavigationState } from 'app/store/NavigationState'
 
 export function navigation(state: NavigationState, action: NavigationAction): NavigationState {

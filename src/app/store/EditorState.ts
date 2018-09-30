@@ -22,6 +22,13 @@ export class EditorState implements IEditorState {
         return new EditorState(id, docId, uri)
     }
 
+    public static changeDocument(obj: EditorState, docId:string, uri:string, content?:string) {
+        if(content)
+            return EditorState.openEditorLoaded(obj.id, docId, uri, content)
+        else
+            return EditorState.openEditorToBeLoaded(obj.id, docId, uri)
+    }
+
     public static updateContent(obj: EditorState, content: string) {
         return new EditorState(obj.id,
             obj.isPersisted ? obj.docId : undefined,

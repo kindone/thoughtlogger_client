@@ -38,6 +38,11 @@ export class EditingState implements IEditingState {
         return obj.focusedEditorId === editorId
     }
 
+    public static isPersistent(obj: EditingState, editorId: string) {
+        const editorState = EditingState.find(obj, editorId)
+        return editorState ? editorState.isPersisted : false
+    }
+
     public static find(obj: EditingState, editorId: string):EditorState {
         return obj.editors[editorId]
     }

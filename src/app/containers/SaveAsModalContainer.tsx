@@ -1,10 +1,10 @@
-import { CancelSaveDocAs, SaveDocFirstTimeAsync } from 'app/actions/EditorActions'
+import { SaveDocFirstTimeAsync } from 'app/actions/DocumentActions'
+import { CancelSaveDocAs } from 'app/actions/EditorActions'
 import { IActionWithPayload } from 'app/actions/helpers'
 import { ISaveAsModalProps, SaveAsModal } from 'app/components/SaveAsModal'
 import ThoughtLogggerState from 'app/store/ThoughtLoggerState'
 import { connect } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
-
 
 const mapStateToProps = (state: { thoughtLoggerApp: ThoughtLogggerState }): ISaveAsModalProps => {
   return {
