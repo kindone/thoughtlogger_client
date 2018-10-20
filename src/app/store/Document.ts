@@ -1,3 +1,5 @@
+import { QuillContent } from "app/utils/QuillContent"
+
 export interface IDocumentInfo
 {
     id:string
@@ -6,7 +8,5 @@ export interface IDocumentInfo
 
 export class Document implements IDocumentInfo
 {
-    public id:string
-    public uri:string
-    public content:string
+    constructor(public readonly id:string, public readonly uri:string, public readonly content:QuillContent) {}
 }

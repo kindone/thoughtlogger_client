@@ -5,8 +5,12 @@ import { Document, IDocumentInfo } from "app/store/Document"
 import { EditingState } from "app/store/EditingState"
 import ThoughtLogggerState from "app/store/ThoughtLoggerState"
 import Documents from "app/utils/Documents"
+import { QuillContent } from "app/utils/QuillContent"
 import { Dispatch } from "redux"
 import { ThunkDispatch } from "redux-thunk"
+
+
+
 
 export const LOAD_DOC_CONTENT_REQUEST = 'editor/load_doc_content_req'
 export const LOAD_DOC_CONTENT_SUCCESS = 'editor/load_doc_content_success'
@@ -32,7 +36,7 @@ function LoadDocContentFail(editorId:string, docId:string) {
     return createActionWithPayload(LOAD_DOC_CONTENT_FAIL, { editorId, docId })
 }
 
-function SaveDocContentRequest(id: string, content: string) {
+function SaveDocContentRequest(id: string, content: QuillContent) {
     return createActionWithPayload(SAVE_DOC_CONTENT_REQUEST, { id, content })
 }
 
@@ -60,7 +64,7 @@ export function LoadDocContentAsync(editorId: string) {
     }
 }
 
-export function SaveDocContentAsync(editorId: string, content: string) {
+export function SaveDocContentAsync(editorId: string, content: QuillContent) {
     return (dispatch: Dispatch<IActionWithPayload<any,any>>, getState: () => { thoughtLoggerApp: ThoughtLogggerState }) => {
         dispatch(SaveDocContentRequest(editorId, content))
 
@@ -75,7 +79,7 @@ export function SaveDocContentAsync(editorId: string, content: string) {
     }
 }
 
-function SaveDocFirstTimeRequest(editorId: string, uri:string, content:string) {
+function SaveDocFirstTimeRequest(editorId: string, uri:string, content:QuillContent) {
     return createActionWithPayload(SAVE_DOC_FIRST_TIME_REQUEST, { editorId, uri, content })
 }
 

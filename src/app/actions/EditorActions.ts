@@ -1,4 +1,6 @@
 import { createAction, createActionWithPayload } from 'app/actions/helpers'
+import { QuillContent } from 'app/utils/QuillContent'
+
 
 export const CREATE_EMPTY_EDITOR = 'editor/create_empty_editor'
 export const SAVE_DOC_AS = 'editor/save_doc_as'
@@ -16,7 +18,7 @@ export function CreateNewEmptyEditor() {
     return createAction(CREATE_EMPTY_EDITOR)
 }
 
-export function SaveDocAs(editorId: string, content: string) {
+export function SaveDocAs(editorId: string, content: QuillContent) {
     return createActionWithPayload(SAVE_DOC_AS, { editorId, content })
 }
 
@@ -24,7 +26,7 @@ export function CancelSaveDocAs() {
     return createAction(CANCEL_SAVE_DOC_AS)
 }
 
-export function ChangeEditorContent(id: string, content: string) {
+export function ChangeEditorContent(id: string, content: QuillContent) {
     return createActionWithPayload(CHANGE_EDITOR_CONTENT, { id, content })
 }
 

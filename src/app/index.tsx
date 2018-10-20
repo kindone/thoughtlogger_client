@@ -4,8 +4,9 @@ import { AppContainer } from 'react-hot-loader'
 import './app.global.scss'
 import Root from './containers/Root'
 
-const { configureStore, history } = require('./store/configureStore')
+import {configureStore, history} from './store/configureStore'
 
+// console.log(configureStore)
 const store = configureStore()
 
 render(

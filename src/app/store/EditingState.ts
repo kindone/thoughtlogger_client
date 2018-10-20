@@ -1,5 +1,8 @@
 import { IDGenerator } from 'app/utils/IDGenerator'
+import { QuillContent } from 'app/utils/QuillContent'
 import { EditorState, IEditorState } from './EditorState'
+
+
 
 export type EditorStateDictionary = { [id in string]: EditorState }
 
@@ -18,7 +21,7 @@ export class EditingState implements IEditingState {
         return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
     }
 
-    public static addEditorForDoc(obj: EditingState, docId: string, uri:string, content?: string) {
+    public static addEditorForDoc(obj: EditingState, docId: string, uri:string, content?: QuillContent) {
         const editorId = IDGenerator.generate()
         const newEditor = content ? EditorState.openEditorLoaded(editorId, docId, uri, content) : EditorState.openEditorToBeLoaded(editorId, docId, uri)
 

@@ -36,18 +36,20 @@ const composeEnhancers: typeof compose = window.__REDUX_DEVTOOLS_EXTENSION_COMPO
 /* eslint-enable no-underscore-dangle */
 const enhancer = composeEnhancers(applyMiddleware(thunk, router, logger))
 
-export = {
-    history,
-    configureStore(initialState?: object) {
-        const store = createStore(rootReducer, initialState!, enhancer)
+const configureStore= (initialState?: object) => {
+    const store = createStore(rootReducer, initialState!, enhancer)
 
-        if (module.hot) {
-            module.hot.accept(
-                '../reducers',
-                () => store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
-            )
-        }
-
-        return store
+    if (module.hot) {
+        module.hot.accept(
+            '../reducers',
+            () => store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
+        )
     }
+
+    return store
+}
+
+export {
+    history,
+    configureStore
 }
