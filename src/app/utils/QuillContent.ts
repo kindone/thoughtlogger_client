@@ -26,12 +26,14 @@ export class QuillContent
 
         const last = content.ops[content.ops.length-1].insert
 
-        if(typeof last === 'string')
+        if(typeof last === 'string' && last.substr(last.length-1) !== '\n')
         {
-            if(last.substr(last.length-1) !== '\n')
-            {
-                return {ops: content.ops.concat(insOp)}
-            }
+            content.ops[content.ops.length-1].insert = content.ops[content.ops.length-1].insert + "\n"
+            return content
+        }
+        else if(typeof last === 'object')
+        {
+            return {ops: content.ops.concat(insOp)}
         }
         return content
     }

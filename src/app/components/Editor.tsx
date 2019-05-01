@@ -1,16 +1,18 @@
 import { AsnycStatus } from 'app/utils/AsyncStatus'
 import { QuillContent } from 'app/utils/QuillContent'
-import { DeltaOperation, DeltaStatic, RangeStatic, Sources } from 'quill'
-import * as Quill from 'quill'
+import { BoundsStatic, Delta, DeltaOperation, DeltaStatic, RangeStatic, Sources } from 'quill'
 import * as React from 'react'
-import ReactQuill from 'react-quill'
+import ReactQuill, {Quill as Quill2} from 'react-quill'
 import { Button, Container } from 'semantic-ui-react'
-import {IDelta, StringWithState} from 'text-versioncontrol'
+import { IDelta, SharedString } from 'text-versioncontrol'
 import * as _ from 'underscore'
-
+import { ExcerptedBlot } from './Excerpted';
 
 // require('react-quill/dist/quill.snow.css')
 require('./Editor.scss')
+
+// register
+Quill2.register("formats/excerpted", ExcerptedBlot)
 
 export interface IEditorProps {
     id: string
@@ -19,7 +21,7 @@ export interface IEditorProps {
     docId: string
     uri:string
     content: QuillContent
-    onChange?: (id: string, content: QuillContent, delta: Quill.Delta, source: Sources) => void
+    onChange?: (id: string, content: QuillContent, delta: Delta, source: Sources) => void
     onSave?: (id: string, content: QuillContent) => void
     onSaveAs?: (id: string, content: QuillContent) => void
     onReload?: (id: string) => void
@@ -59,6 +61,8 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         console.log('Editor.render', this.props)
         // this.setState({content:this.props.content})
 
+        const dummyExcerptOps = {"ops":[{"insert":"Actual "},{"insert":{"excerpted":"doc1?rev=6"},"attributes":{"targetUri":"doc2","targetRev":9,"length":20}},{"insert":"prettier beautiful introduction here: Here comes the trouble. HAHAHAHA"}]}
+
         return (
             <Container>
                 <Button type="button" onClick={this.handleSave}>
@@ -69,10 +73,11 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
                     <div className="scrolling-container">
                         <ReactQuill
                             className="quill-container"
-                            value={{ops:this.props.content.ops} as DeltaStatic}
+                            value={dummyExcerptOps as DeltaStatic}
                             bounds="scrolling-container"
                             onChange={this.handleChange}
                             onChangeSelection={this.handleSelectionChange}
+                            formats={["excerpted"]}
                         />
                     </div>
                 </Container>
@@ -80,11 +85,11 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         )
     }
 
-    private handleChange(value: string, delta: Quill.Delta, source: Sources, editor:any) {
+    private handleChange(value: string, delta: Delta, source: Sources, editor:any) {
         const content:IDelta = editor.getContents()
         console.log('Editor.handleChange:', this.props.id, value, delta, source, 'editor:', content, this.props.content)
 
-        const changed = this.checkDelta(this.props.content, {ops:delta.ops ? delta.ops : []}, content)
+        const changed = this.checkDelta(this.props.content, {ops: delta.ops ? delta.ops : []}, content)
         if(this.props.onChange && changed)
             this.props.onChange(this.props.id, content, delta, source)
 
@@ -100,15 +105,20 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
             return
         const contents:DeltaStatic = editor.getContents(range.index, range.length)
         this.selection = {content: contents.ops!, from: range.index, length: range.length}
+
+        const bound = editor.getBounds(range.index, range.length) as BoundsStatic
+        console.log('selection bound:', bound)
     }
 
     private checkDelta(prev:IDelta, delta:IDelta, current:IDelta):boolean
     {
         if (!QuillContent.isEqual(prev, current)) {
-            const ss = StringWithState.fromDelta(prev)
-            ss.apply(delta, "user")
+            const ss = SharedString.fromDelta(prev)
+            ss.applyChange(delta, "user")
             if(!QuillContent.isEqual(ss.toDelta(), current) && QuillContent.isEqual(prev, this.state.content))
                 console.error('props.content:', prev, 'delta:', delta, 'applied:', ss.toDelta(), 'current:', current)
+            else if(QuillContent.isEqual(ss.toDelta(), current))
+                console.log('delta:', delta)
 
             return true
         }

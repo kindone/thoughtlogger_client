@@ -55,8 +55,13 @@ export default class Documents {
         )
     }
 
+    public static syncDoc(docId: string) {
+        //
+    }
+
     private static responseDataToDocument(data:any):Document {
         console.log('responseDataToDocument', data)
-        return new Document(data.id, data.uri, JSON.parse(data.content))
+        // return new Document(data.id, data.uri, JSON.parse(data.content))
+        return new Document(data.id, data.uri, data.content)
     }
 }
