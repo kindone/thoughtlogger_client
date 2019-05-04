@@ -1,13 +1,12 @@
 import {Document, IDocumentInfo } from "app/store/Document"
+import { QuillContent } from "app/utils/QuillContent";
 import Axios from "axios"
 import * as _ from 'underscore'
-import { QuillContent } from "./QuillContent";
-
 
 
 
 export default class Documents {
-    public static getDocumentsInfolder(): Promise<IDocumentInfo[]> {
+    public static getDocumentsInFolder(): Promise<IDocumentInfo[]> {
         return new Promise((resolve, reject) => Axios.get('http://localhost:4000/document')
             .then((response) => {
                 resolve(response.data as IDocumentInfo[])
@@ -53,10 +52,6 @@ export default class Documents {
                 reject(err)
             })
         )
-    }
-
-    public static syncDoc(docId: string) {
-        //
     }
 
     private static responseDataToDocument(data:any):Document {

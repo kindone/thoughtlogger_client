@@ -2,7 +2,7 @@ import { AsnycStatus } from 'app/utils/AsyncStatus'
 import { QuillContent } from 'app/utils/QuillContent'
 import { BoundsStatic, Delta, DeltaOperation, DeltaStatic, RangeStatic, Sources } from 'quill'
 import * as React from 'react'
-import ReactQuill, {Quill as Quill2} from 'react-quill'
+import ReactQuill, {Quill as Quill} from 'react-quill'
 import { Button, Container } from 'semantic-ui-react'
 import { IDelta, SharedString } from 'text-versioncontrol'
 import * as _ from 'underscore'
@@ -12,7 +12,7 @@ import { ExcerptedBlot } from './Excerpted';
 require('./Editor.scss')
 
 // register
-Quill2.register("formats/excerpted", ExcerptedBlot)
+Quill.register("formats/excerpted", ExcerptedBlot)
 
 export interface IEditorProps {
     id: string
@@ -61,19 +61,19 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         console.log('Editor.render', this.props)
         // this.setState({content:this.props.content})
 
-        const dummyExcerptOps = {"ops":[{"insert":"Actual "},{"insert":{"excerpted":"doc1?rev=6"},"attributes":{"targetUri":"doc2","targetRev":9,"length":20}},{"insert":"prettier beautiful introduction here: Here comes the trouble. HAHAHAHA"}]}
+        // const value = {"ops":[{"insert":"Actual "},{"insert":{"excerpted":"doc1?rev=6"},"attributes":{"targetUri":"doc2","targetRev":9,"length":20}},{"insert":"prettier beautiful introduction here: Here comes the trouble. HAHAHAHA"}]} as DeltaStatic
+        const value = {ops:this.props.content.ops} as DeltaStatic
 
         return (
             <Container>
-                <Button type="button" onClick={this.handleSave}>
-                    Save
-                </Button>
+                <Button type="button" onClick={this.handleSave}>Save</Button>
 
                 <Container>
                     <div className="scrolling-container">
                         <ReactQuill
                             className="quill-container"
-                            value={dummyExcerptOps as DeltaStatic}
+                            // value={dummyExcerptOps as DeltaStatic}
+                            value={value}
                             bounds="scrolling-container"
                             onChange={this.handleChange}
                             onChangeSelection={this.handleSelectionChange}

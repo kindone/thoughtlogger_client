@@ -1,10 +1,10 @@
 
 import { createActionWithPayload, IActionWithPayload } from "app/actions/helpers"
 import { LoadDocListAsync } from "app/actions/NavigationActions"
+import Documents from "app/document/Documents"
 import { Document, IDocumentInfo } from "app/store/Document"
 import { EditingState } from "app/store/EditingState"
 import ThoughtLogggerState from "app/store/ThoughtLoggerState"
-import Documents from "app/utils/Documents"
 import { QuillContent } from "app/utils/QuillContent"
 import { Dispatch } from "redux"
 import { ThunkDispatch } from "redux-thunk"

@@ -1,10 +1,14 @@
 import Parchment from 'parchment'
 import { Scope } from 'parchment/dist/src/registry';
-
+import Quill from 'quill'
 import {ExcerptUtil} from 'text-versioncontrol'
 
 
-export class ExcerptedBlot extends Parchment.Embed {
+// const Embed = Quill.import('formats/link')
+
+const Embed = Quill.import('blots/embed')
+
+export class ExcerptedBlot extends Embed {
     public static blotName: string = "excerpted";
     public static className: string = "excerpted";
     public static tagName: string = "div";

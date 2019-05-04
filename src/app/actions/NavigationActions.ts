@@ -1,7 +1,7 @@
 import { createAction, createActionWithPayload, IActionWithPayload } from 'app/actions/helpers'
+import Documents from 'app/document/Documents'
 import { IDocumentInfo } from 'app/store/Document';
 import ThoughtLogggerState from 'app/store/ThoughtLoggerState'
-import Documents from 'app/utils/Documents'
 import { Dispatch } from 'redux'
 
 export const OPEN_DOC_ON_NEW_TAB = 'navigation/open_doc_on_new_tab'
@@ -38,7 +38,7 @@ export function LoadDocListAsync() {
     return (dispatch: Dispatch<IActionWithPayload<any, any>>, getState: () => { thoughtLoggerApp: ThoughtLogggerState }) => {
         dispatch(LoadDocList())
 
-        Documents.getDocumentsInfolder()
+        Documents.getDocumentsInFolder()
             .then((documents) => {
                 dispatch(LoadDocListSuccess(documents))
             })
