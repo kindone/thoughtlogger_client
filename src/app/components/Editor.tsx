@@ -4,9 +4,10 @@ import { BoundsStatic, Delta, DeltaOperation, DeltaStatic, RangeStatic, Sources 
 import * as React from 'react'
 import ReactQuill, {Quill as Quill} from 'react-quill'
 import { Button, Container } from 'semantic-ui-react'
-import { IDelta, SharedString } from 'text-versioncontrol'
+import { Document as DocumentWithHistory, IDelta, SharedString } from 'text-versioncontrol'
 import * as _ from 'underscore'
 import { ExcerptedBlot } from './Excerpted';
+
 
 // require('react-quill/dist/quill.snow.css')
 require('./Editor.scss')
@@ -20,10 +21,10 @@ export interface IEditorProps {
     loadStatus: AsnycStatus
     docId: string
     uri:string
-    content: QuillContent
-    onChange?: (id: string, content: QuillContent, delta: Delta, source: Sources) => void
-    onSave?: (id: string, content: QuillContent) => void
-    onSaveAs?: (id: string, content: QuillContent) => void
+    document: DocumentWithHistory
+    onChange?: (id: string, document: DocumentWithHistory, delta: Delta, source: Sources) => void
+    onSave?: (id: string, document: DocumentWithHistory) => void
+    onSaveAs?: (id: string, document: DocumentWithHistory) => void
     onReload?: (id: string) => void
 }
 
@@ -38,7 +39,7 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         super(props)
         console.log('Editor.constructor', props)
 
-        this.state = {content: this.props.content}
+        this.state = {content: this.props.document.getContent()}
         this.handleChange = this.handleChange.bind(this)
         this.handleSelectionChange = this.handleSelectionChange.bind(this)
         this.handleSave = this.handleSave.bind(this)
@@ -58,11 +59,11 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
     }
 
     public render() {
-        console.log('Editor.render', this.props)
+        console.log('Editor.render', this.props, this.props.document.getContent())
         // this.setState({content:this.props.content})
 
         // const value = {"ops":[{"insert":"Actual "},{"insert":{"excerpted":"doc1?rev=6"},"attributes":{"targetUri":"doc2","targetRev":9,"length":20}},{"insert":"prettier beautiful introduction here: Here comes the trouble. HAHAHAHA"}]} as DeltaStatic
-        const value = {ops:this.props.content.ops} as DeltaStatic
+        const value = QuillContent.fromDelta(this.props.document.getContent()) as DeltaStatic
 
         return (
             <Container>
@@ -87,11 +88,14 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
 
     private handleChange(value: string, delta: Delta, source: Sources, editor:any) {
         const content:IDelta = editor.getContents()
-        console.log('Editor.handleChange:', this.props.id, value, delta, source, 'editor:', content, this.props.content)
+        console.log('Editor.handleChange:', this.props.id, value, delta, source, 'editor:', content, this.props.document)
 
-        const changed = this.checkDelta(this.props.content, {ops: delta.ops ? delta.ops : []}, content)
-        if(this.props.onChange && changed)
-            this.props.onChange(this.props.id, content, delta, source)
+        const changed = this.checkDelta(this.props.document.getContent(), {ops: delta.ops ? delta.ops : []}, content)
+        if(this.props.onChange && changed && delta.ops) {
+            const newDocument = this.props.document.clone()
+            newDocument.append([{ops:delta.ops}])
+            this.props.onChange(this.props.id, newDocument, delta, source)
+        }
 
         this.setState({content})
     }
@@ -129,10 +133,10 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         console.log('Editor.handleSave', this.props.id, this.props)
         if (!this.props.isPersisted) {
             if (this.props.onSaveAs)
-                this.props.onSaveAs(this.props.id, this.props.content)
+                this.props.onSaveAs(this.props.id, this.props.document)
         } else {
             if (this.props.onSave)
-                 this.props.onSave(this.props.id, this.props.content)
+                 this.props.onSave(this.props.id, this.props.document)
         }
     }
 }

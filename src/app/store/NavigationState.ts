@@ -1,4 +1,4 @@
-import {IDocumentInfo} from "app/store/Document"
+import {IDocumentInfo} from "app/store/DocumentInfo"
 
 
 export class NavigationState {

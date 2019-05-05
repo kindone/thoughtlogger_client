@@ -9,7 +9,7 @@ import {
   CREATE_EMPTY_EDITOR
   } from 'app/actions/EditorActions'
 import { OPEN_DOC_ON_CURRENT_TAB, OPEN_DOC_ON_NEW_TAB } from 'app/actions/NavigationActions'
-import { Document } from 'app/store/Document'
+import { IDocumentInfo } from 'app/store/DocumentInfo'
 import { EditingState } from 'app/store/EditingState'
 import { editor } from './editor'
 
@@ -44,8 +44,8 @@ export function editing(state: EditingState, action: EditingAction): EditingStat
             }
         }
         case LOAD_DOC_CONTENT_SUCCESS: {
-            const document:Document = action.payload.document
-            const editorState = EditingState.findByDocId(state, document.id)
+            const documentInfo:IDocumentInfo = action.payload.documentInfo
+            const editorState = EditingState.findByDocId(state, documentInfo.id)
 
             if (!editorState)
               return state

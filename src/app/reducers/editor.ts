@@ -22,7 +22,7 @@ export function editor(state: EditorState, action: EditorAction): EditorState {
             return state
         case LOAD_DOC_CONTENT_SUCCESS:
             console.log(LOAD_DOC_CONTENT_SUCCESS)
-            return EditorState.setLoaded(state, action.payload.document.content)
+            return EditorState.setLoaded(state, action.payload.documentInfo.document)
         case LOAD_DOC_CONTENT_FAIL:
             console.log('LOAD_DOC_CONTENT_FAIL: editorId=' + action.payload.editorId)
             return state
@@ -40,7 +40,7 @@ export function editor(state: EditorState, action: EditorAction): EditorState {
         }
         case OPEN_DOC_ON_CURRENT_TAB: {
             const { docId, uri } = action.payload
-            return EditorState.changeDocument(state, docId, uri)
+            return EditorState.changeDocumentInfo(state, docId, uri)
         }
         case CHANGE_EDITOR_CONTENT:
             return EditorState.updateContent(state, action.payload.content)

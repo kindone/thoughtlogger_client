@@ -1,11 +1,11 @@
-import {Document, IDocumentInfo } from "app/store/Document"
+import {DocumentInfo, IDocumentInfo } from "app/store/DocumentInfo"
 import { QuillContent } from "app/utils/QuillContent";
 import Axios from "axios"
 import * as _ from 'underscore'
 
 
 
-export default class Documents {
+export default class RemoteDocuments {
     public static getDocumentsInFolder(): Promise<IDocumentInfo[]> {
         return new Promise((resolve, reject) => Axios.get('http://localhost:4000/document')
             .then((response) => {
@@ -30,10 +30,10 @@ export default class Documents {
         )
     }
 
-    public static loadDoc(docId: string): Promise<Document> {
+    public static loadDoc(docId: string): Promise<DocumentInfo> {
         return new Promise((resolve, reject) => Axios.get('http://localhost:4000/document/' + docId)
             .then((response) => {
-                resolve(Documents.responseDataToDocument(response.data))
+                resolve(RemoteDocuments.responseDataToDocument(response.data))
             })
             .catch((err) => {
                 console.error('document retrieval failed', err)
@@ -54,9 +54,9 @@ export default class Documents {
         )
     }
 
-    private static responseDataToDocument(data:any):Document {
+    private static responseDataToDocument(data:any):DocumentInfo {
         console.log('responseDataToDocument', data)
         // return new Document(data.id, data.uri, JSON.parse(data.content))
-        return new Document(data.id, data.uri, data.content)
+        return new DocumentInfo(data.id, data.uri, data.content)
     }
 }

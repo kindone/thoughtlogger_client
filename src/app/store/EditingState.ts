@@ -1,5 +1,5 @@
 import { IDGenerator } from 'app/utils/IDGenerator'
-import { QuillContent } from 'app/utils/QuillContent'
+import { Document as DocumentWithHistory} from "text-versioncontrol";
 import { EditorState, IEditorState } from './EditorState'
 
 
@@ -21,9 +21,9 @@ export class EditingState implements IEditingState {
         return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
     }
 
-    public static addEditorForDoc(obj: EditingState, docId: string, uri:string, content?: QuillContent) {
+    public static addEditorForDoc(obj: EditingState, docId: string, uri:string, document?: DocumentWithHistory) {
         const editorId = IDGenerator.generate()
-        const newEditor = content ? EditorState.openEditorLoaded(editorId, docId, uri, content) : EditorState.openEditorToBeLoaded(editorId, docId, uri)
+        const newEditor = document ? EditorState.openEditorLoaded(editorId, docId, uri, document) : EditorState.openEditorToBeLoaded(editorId, docId, uri)
 
         return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
     }
@@ -64,11 +64,6 @@ export class EditingState implements IEditingState {
         return undefined
     }
 
-    public readonly editors: EditorStateDictionary
-    public readonly focusedEditorId: string
-
-    constructor(editors: EditorStateDictionary = {}, focusedEditorId = '') {
-        this.editors = editors
-        this.focusedEditorId = focusedEditorId
+    constructor(public readonly editors: EditorStateDictionary = {}, public readonly focusedEditorId = '') {
     }
 }

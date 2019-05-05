@@ -1,13 +1,14 @@
 
 import { createActionWithPayload, IActionWithPayload } from "app/actions/helpers"
 import { LoadDocListAsync } from "app/actions/NavigationActions"
-import Documents from "app/document/Documents"
-import { Document, IDocumentInfo } from "app/store/Document"
+import LocalDocuments from "app/document/LocalDocuments";
+import {  IDocumentInfo } from "app/store/DocumentInfo"
 import { EditingState } from "app/store/EditingState"
 import ThoughtLogggerState from "app/store/ThoughtLoggerState"
-import { QuillContent } from "app/utils/QuillContent"
 import { Dispatch } from "redux"
 import { ThunkDispatch } from "redux-thunk"
+import { Document as DocumentWithHistory } from 'text-versioncontrol'
+
 
 
 
@@ -28,16 +29,16 @@ function LoadDocContentRequest(editorId: string) {
     return createActionWithPayload(LOAD_DOC_CONTENT_REQUEST, { editorId })
 }
 
-function LoadDocContentSuccess(editorId:string, document:Document) {
-    return createActionWithPayload(LOAD_DOC_CONTENT_SUCCESS, { editorId, document })
+function LoadDocContentSuccess(editorId:string, documentInfo:IDocumentInfo) {
+    return createActionWithPayload(LOAD_DOC_CONTENT_SUCCESS, { editorId, documentInfo })
 }
 
 function LoadDocContentFail(editorId:string, docId:string) {
     return createActionWithPayload(LOAD_DOC_CONTENT_FAIL, { editorId, docId })
 }
 
-function SaveDocContentRequest(id: string, content: QuillContent) {
-    return createActionWithPayload(SAVE_DOC_CONTENT_REQUEST, { id, content })
+function SaveDocContentRequest(id: string, document: DocumentWithHistory) {
+    return createActionWithPayload(SAVE_DOC_CONTENT_REQUEST, { id, document })
 }
 
 function SaveDocContentSuccess(editorId:string, document:IDocumentInfo) {
@@ -54,7 +55,7 @@ export function LoadDocContentAsync(editorId: string) {
         dispatch(LoadDocContentRequest(editorId))
 
         const docId = EditingState.find(getState().thoughtLoggerApp.editing, editorId).docId
-        Documents.loadDoc(docId)
+        LocalDocuments.loadDoc(docId)
             .then((document) => {
                 dispatch(LoadDocContentSuccess(editorId, document))
             })
@@ -64,14 +65,14 @@ export function LoadDocContentAsync(editorId: string) {
     }
 }
 
-export function SaveDocContentAsync(editorId: string, content: QuillContent) {
+export function SaveDocContentAsync(editorId: string, document: DocumentWithHistory) {
     return (dispatch: Dispatch<IActionWithPayload<any,any>>, getState: () => { thoughtLoggerApp: ThoughtLogggerState }) => {
-        dispatch(SaveDocContentRequest(editorId, content))
+        dispatch(SaveDocContentRequest(editorId, document))
 
         const editorState = EditingState.find(getState().thoughtLoggerApp.editing, editorId)
-        Documents.saveDoc(editorState.docId, content)
+        LocalDocuments.saveDoc(editorState.docId, document)
             .then(() => {
-                dispatch(SaveDocContentSuccess(editorId, { id:editorState.docId, uri:editorState.uri }))
+                dispatch(SaveDocContentSuccess(editorId, { id:editorState.docId, uri:editorState.document.getName(), document }))
             })
             .catch(() => {
                 dispatch(SaveDocContentFail(editorId))
@@ -79,8 +80,8 @@ export function SaveDocContentAsync(editorId: string, content: QuillContent) {
     }
 }
 
-function SaveDocFirstTimeRequest(editorId: string, uri:string, content:QuillContent) {
-    return createActionWithPayload(SAVE_DOC_FIRST_TIME_REQUEST, { editorId, uri, content })
+function SaveDocFirstTimeRequest(editorId: string, uri:string, document:DocumentWithHistory) {
+    return createActionWithPayload(SAVE_DOC_FIRST_TIME_REQUEST, { editorId, uri, document })
 }
 
 export function SaveDocFirstTimeSuccess(editorId: string, docId:string, uri:string) {
@@ -94,8 +95,8 @@ export function SaveDocFirstTimeFail(editorId: string, error:any) {
 export function SaveDocFirstTimeAsync(editorId: string, uri:string) {
     return (dispatch: ThunkDispatch<{ thoughtLoggerApp: ThoughtLogggerState }, void, IActionWithPayload<any>>, getState: () => { thoughtLoggerApp: ThoughtLogggerState }) => {
         const editorState = EditingState.find(getState().thoughtLoggerApp.editing, editorId)
-        dispatch(SaveDocFirstTimeRequest(editorId, uri, editorState.content))
-        Documents.createDoc(uri, editorState.content)
+        dispatch(SaveDocFirstTimeRequest(editorId, uri, editorState.document))
+        LocalDocuments.createDoc(uri, editorState.document)
             .then((result) => {
                 dispatch(SaveDocFirstTimeSuccess(editorId, result.id, result.uri))
                 dispatch(LoadDocListAsync())

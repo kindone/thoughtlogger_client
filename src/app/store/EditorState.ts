@@ -1,13 +1,15 @@
-import { IDocumentInfo } from "app/store/Document"
+import { IDocumentInfo } from "app/store/DocumentInfo"
 import { AsnycStatus } from "app/utils/AsyncStatus"
 import { QuillContent } from "app/utils/QuillContent"
+import { Document as DocumentWithHistory} from "text-versioncontrol";
 
 export interface IEditorState extends IDocumentInfo {
-    id: string
-    isPersisted: boolean
-    loadStatus: AsnycStatus
-    docId: string
-    content: QuillContent
+    readonly id: string
+    readonly isPersisted: boolean
+    readonly loadStatus: AsnycStatus
+    readonly docId: string
+    readonly uri:string
+    readonly document:DocumentWithHistory
 }
 
 export class EditorState implements IEditorState {
@@ -15,61 +17,59 @@ export class EditorState implements IEditorState {
         return new EditorState(id)
     }
 
-    public static openEditorLoaded(id:string, docId:string, uri:string, content:QuillContent) {
-        return new EditorState(id, docId, uri, content)
+    public static openEditorLoaded(id:string, docId:string, uri:string, document:DocumentWithHistory) {
+        return new EditorState(id, docId, uri, document)
     }
 
     public static openEditorToBeLoaded(id:string, docId:string, uri:string) {
         return new EditorState(id, docId, uri)
     }
 
-    public static changeDocument(obj: EditorState, docId:string, uri:string, content?:QuillContent) {
-        if(content)
-            return EditorState.openEditorLoaded(obj.id, docId, uri, content)
+    public static changeDocumentInfo(obj: EditorState, docId:string, uri:string, document?:DocumentWithHistory) {
+        if(document)
+            return EditorState.openEditorLoaded(obj.id, docId, uri, document)
         else
             return EditorState.openEditorToBeLoaded(obj.id, docId, uri)
     }
 
-    public static updateContent(obj: EditorState, content: QuillContent) {
+    public static updateContent(obj: EditorState, document: DocumentWithHistory) {
         return new EditorState(obj.id,
             obj.isPersisted ? obj.docId : undefined,
             obj.isPersisted ? obj.uri : undefined,
-            content)
+            document)
     }
 
     public static setPersisted(obj: EditorState, docId: string, uri:string) {
-        return new EditorState(obj.id, docId, uri, obj.content)
+        return new EditorState(obj.id, docId, uri, obj.document)
     }
 
     public static setLoading(obj: EditorState) {
         return new EditorState(obj.id, obj.docId, obj.uri, undefined, AsnycStatus.INPROGRESS)
     }
 
-    public static setLoaded(obj: EditorState, content:QuillContent) {
-        return new EditorState(obj.id, obj.docId, obj.uri, content)
+    public static setLoaded(obj: EditorState, document:DocumentWithHistory) {
+        return new EditorState(obj.id, obj.docId, obj.uri, document)
     }
 
     public readonly id: string
     public readonly isPersisted: boolean
     public readonly loadStatus: AsnycStatus
     public readonly docId: string
-    public readonly uri:string
-    public readonly content: QuillContent
+    public readonly uri: string
+    public readonly document:DocumentWithHistory
 
-    private constructor(id: string, docId?: string, uri?:string, content?: QuillContent | string, loadStatus?:AsnycStatus) {
+    private constructor(id: string, docId?: string, uri?:string, document?:DocumentWithHistory, loadStatus?:AsnycStatus) {
         this.id = id
 
         this.isPersisted = docId ? true : false
         this.docId = docId || ''
         this.uri = uri || ''
 
-        this.loadStatus = loadStatus ? loadStatus : (content ? AsnycStatus.COMPLETE : AsnycStatus.INITIAL)
+        this.loadStatus = loadStatus ? loadStatus : (document ? AsnycStatus.COMPLETE : AsnycStatus.INITIAL)
 
-        if(!content)
-            this.content = QuillContent.empty()
-        else if(typeof content === 'string')
-            this.content = QuillContent.fromString(content)
+        if(!document)
+            this.document = new DocumentWithHistory(this.uri, QuillContent.empty())
         else
-            this.content = content
+            this.document = document
     }
 }

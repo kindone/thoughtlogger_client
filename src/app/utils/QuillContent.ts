@@ -42,12 +42,12 @@ export class QuillContent
         return new QuillContent([{insert: str}])
     }
 
-    public static fromDelta(delta:Quill.Delta) {
+    public static fromDelta(delta:IDelta) {
         return delta.ops ? new QuillContent(delta.ops) : new QuillContent([])
     }
 
     public static empty() {
-        return new QuillContent([{insert: ''}])
+        return new QuillContent([{insert: '\n'}])
     }
 
     public constructor(public readonly ops:Quill.DeltaOperation[])
