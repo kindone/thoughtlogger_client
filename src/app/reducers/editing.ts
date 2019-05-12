@@ -6,7 +6,8 @@ import {
 import {
   CHANGE_ACTIVE_EDITOR,
   CHANGE_EDITOR_CONTENT,
-  CREATE_EMPTY_EDITOR
+  CREATE_EMPTY_EDITOR,
+  TAKE_EXCERPT
   } from 'app/actions/EditorActions'
 import { OPEN_DOC_ON_CURRENT_TAB, OPEN_DOC_ON_NEW_TAB } from 'app/actions/NavigationActions'
 import { IDocumentInfo } from 'app/store/DocumentInfo'
@@ -57,9 +58,13 @@ export function editing(state: EditingState, action: EditingAction): EditingStat
             const editorState = EditingState.find(state, document.editorId)
             return EditingState.updateEditor(state, editorState.id, editor(editorState, action))
         }
-        case CHANGE_EDITOR_CONTENT:
+        case CHANGE_EDITOR_CONTENT: {
             const id = action.payload.id
             return EditingState.updateEditor(state, id, editor(EditingState.find(state, id), action))
+        }
+        case TAKE_EXCERPT: {
+            return EditingState.setExcerpt(state, action.payload.excerptSource)
+        }
         default:
             return state
     }

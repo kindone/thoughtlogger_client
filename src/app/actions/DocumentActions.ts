@@ -49,7 +49,6 @@ function SaveDocContentFail(editorId:string) {
     return createActionWithPayload(SAVE_DOC_CONTENT_FAIL, { editorId })
 }
 
-
 export function LoadDocContentAsync(editorId: string) {
     return (dispatch: Dispatch<IActionWithPayload<any,any>>, getState: () => { thoughtLoggerApp: ThoughtLogggerState }) => {
         dispatch(LoadDocContentRequest(editorId))

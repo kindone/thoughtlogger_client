@@ -51,6 +51,16 @@ export class EditorState implements IEditorState {
         return new EditorState(obj.id, obj.docId, obj.uri, document)
     }
 
+    private static counter: number = 1
+
+    private static generateID() {
+        return (this.counter++).toString()
+    }
+
+    private static generateURI() {
+        return "noname_" + this.generateID().toString()
+    }
+
     public readonly id: string
     public readonly isPersisted: boolean
     public readonly loadStatus: AsnycStatus
@@ -63,7 +73,7 @@ export class EditorState implements IEditorState {
 
         this.isPersisted = docId ? true : false
         this.docId = docId || ''
-        this.uri = uri || ''
+        this.uri = uri || EditorState.generateURI()
 
         this.loadStatus = loadStatus ? loadStatus : (document ? AsnycStatus.COMPLETE : AsnycStatus.INITIAL)
 
@@ -72,4 +82,6 @@ export class EditorState implements IEditorState {
         else
             this.document = document
     }
+
+
 }

@@ -14,7 +14,8 @@ import {
     ChangeActiveEditorAction,
     ChangeEditorContentAction,
     CreateNewEmptyEditorAction,
-    SaveDocAsAction
+    SaveDocAsAction,
+    TakeExcerptAction
     } from "app/actions/EditorActions"
 import { LoadDocListAsyncAction,
     LoadDocListFailAction,
@@ -34,7 +35,8 @@ export type EditingAction =
     OpenDocOnCurrentTabAction |
     SaveDocContentAsyncAction |
     SaveDocAsAction |
-    SaveDocFirstTimeSuccessAction
+    SaveDocFirstTimeSuccessAction |
+    TakeExcerptAction
 
 
 export type EditorAction =
@@ -49,6 +51,7 @@ export type EditorAction =
     OpenDocOnNewTabAction |
     OpenDocOnCurrentTabAction |
     SaveDocFirstTimeSuccessAction
+
 
 export type SaveAsModalAction =
     SaveDocAsAction |

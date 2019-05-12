@@ -5,6 +5,7 @@
 	   "no-var-requires": false,
 	   "object-literal-sort-keys": false,
 	   "no-console": false,
-	   "interface-name": false
+		"interface-name": false,
+		"no-bitwise" : false
    }
 }

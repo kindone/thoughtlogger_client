@@ -1,6 +1,8 @@
 import { IDGenerator } from 'app/utils/IDGenerator'
 import { Document as DocumentWithHistory} from "text-versioncontrol";
+import { ExcerptSource } from 'text-versioncontrol/lib/excerpt';
 import { EditorState, IEditorState } from './EditorState'
+
 
 
 
@@ -10,7 +12,8 @@ export type IEditorStateDictionary = { [id in string]: IEditorState }
 
 export interface IEditingState {
     editors: IEditorStateDictionary
-    focusedEditorId: string
+    focusedEditorId: string,
+    excerpt?: ExcerptSource
 }
 
 export class EditingState implements IEditingState {
@@ -18,23 +21,27 @@ export class EditingState implements IEditingState {
         const editorId = IDGenerator.generate()
         const newEditor = EditorState.createUntitledEditor(editorId)
 
-        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
+        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId, obj.excerpt)
     }
 
     public static addEditorForDoc(obj: EditingState, docId: string, uri:string, document?: DocumentWithHistory) {
         const editorId = IDGenerator.generate()
         const newEditor = document ? EditorState.openEditorLoaded(editorId, docId, uri, document) : EditorState.openEditorToBeLoaded(editorId, docId, uri)
 
-        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId)
+        return new EditingState({ ...obj.editors, [editorId]: newEditor }, editorId, obj.excerpt)
     }
 
     public static updateEditor(obj: EditingState, editorId: string, editor: EditorState) {
-        return new EditingState({ ...obj.editors, [editorId]: editor }, editorId) // FIXME focusedEditorId
+        return new EditingState({ ...obj.editors, [editorId]: editor }, editorId, obj.excerpt) // FIXME focusedEditorId
     }
 
     public static setFocused(obj: EditingState, editorId: string) {
-        if (EditingState.find(obj, editorId)) return new EditingState(obj.editors, editorId)
+        if (EditingState.find(obj, editorId)) return new EditingState(obj.editors, editorId, obj.excerpt)
         else return obj
+    }
+
+    public static setExcerpt(obj: EditingState, excerpt:ExcerptSource) {
+        return new EditingState(obj.editors, obj.focusedEditorId, excerpt)
     }
 
     public static isFocused(obj: EditingState, editorId: string) {
@@ -64,6 +71,8 @@ export class EditingState implements IEditingState {
         return undefined
     }
 
-    constructor(public readonly editors: EditorStateDictionary = {}, public readonly focusedEditorId = '') {
+    constructor(public readonly editors: EditorStateDictionary = {},
+         public readonly focusedEditorId = '',
+         public readonly excerpt?:ExcerptSource) {
     }
 }

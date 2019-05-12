@@ -2,10 +2,12 @@ import EditorContainer from 'app/containers/EditorContainer'
 import { EditorStateDictionary } from 'app/store/EditingState'
 import * as React from 'react'
 import { Container, Tab, TabProps } from 'semantic-ui-react'
+import { ExcerptSource } from 'text-versioncontrol/lib/excerpt';
 
 export interface IEditingProps {
     editors: EditorStateDictionary
     focusedEditorId: string
+    excerpt?:ExcerptSource
     onTabChange?: (id: string) => void
     onCreateNewEditor?: () => void
 }
@@ -23,7 +25,7 @@ export default class EditingView extends React.Component<IEditingProps> {
     }
 
     public render() {
-        console.log('EditigView.render', this.props)
+        console.log('EditingView.render', this.props)
         const { panes, activeIndex } = this.createTabPaneProperties(this.props.editors)
 
         return (

@@ -8,19 +8,20 @@ import { Delta, Sources } from 'quill'
 import { connect } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 import { Document as DocumentWithHistory } from 'text-versioncontrol'
+import { ExcerptSource } from 'text-versioncontrol/lib/excerpt';
 import {
     ChangeEditorContent,
-    SaveDocAs
+    SaveDocAs,
+    TakeExcerpt
 } from '../actions/EditorActions'
-
-
 
 
 
 const mapStateToProps = (state: { thoughtLoggerApp: ThoughtLogggerState }, ownProps: { id: string }): IEditorProps => {
     // console.log('mapStateToProps', ownProps)
     const editor:IEditorState = EditingState.find(state.thoughtLoggerApp.editing, ownProps.id)
-    return { ...editor }
+    const excerpt = state.thoughtLoggerApp.editing.excerpt
+    return { ...editor, excerpt }
 }
 
 const mapDispatchToProps = (
@@ -39,7 +40,13 @@ const mapDispatchToProps = (
         },
         onReload: (id: string) => {
             dispatch(LoadDocContentAsync(id))
-        }
+        },
+        onTakeExcerpt: (id: string, excerptSource:ExcerptSource) => {
+            dispatch(TakeExcerpt(id, excerptSource))
+        },
+        onPasteExcerpt: (id: string) => {
+            // dispatch(PasteExcerpt())
+        },
     }
 }
 
