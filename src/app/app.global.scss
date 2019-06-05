@@ -12,15 +12,42 @@ body {
 
 .quill-container {
     height: auto;
-    min-height: 100%; 
+    min-height: 100%;
 }
 .quill-container .ql-editor {
     font-size: 18px;
-    overflow-y: visible; 
+    overflow-y: visible;
 }
 
 .scrolling-container {
     height: 100%;
     min-height: 100%;
     overflow-y: auto;
+}
+
+.op-content, .op-insert, .op-retain, .op-delete {
+    font-family:'Courier New', Courier, monospace
+}
+.op-content {
+    color:black
+}
+.op-content-obj {
+    color:midnightblue
+}
+.op-insert {
+    color:darkgreen
+}
+.op-insert-obj {
+    color:limegreen
+}
+.op-delete {
+    color:red;
+    text-decoration:line-through
+}
+
+.op-retain {
+    color:gray
+}
+.op-retain-attr {
+    color:greenyellow
 }

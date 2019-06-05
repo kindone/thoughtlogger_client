@@ -71,6 +71,13 @@ export class EditingState implements IEditingState {
         return undefined
     }
 
+    public static findByURI(obj: EditingState, uri: string) {
+        for (const editorId in obj.editors) {
+            if (obj.editors[editorId].uri === uri) return obj.editors[editorId]
+        }
+        return undefined
+    }
+
     constructor(public readonly editors: EditorStateDictionary = {},
          public readonly focusedEditorId = '',
          public readonly excerpt?:ExcerptSource) {

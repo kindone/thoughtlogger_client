@@ -1,8 +1,24 @@
 // import Parchment from 'parchment'
 // import { Scope } from 'parchment/dist/src/registry';
+import { OpenExcerptDialog } from 'app/actions/EditorActions';
+import { EditingState } from 'app/store/EditingState';
+import { store } from 'app/store/theStore';
 import Quill from 'quill'
 import {ExcerptUtil} from 'text-versioncontrol'
 
+
+
+export interface ExcerptData {
+    sourceUri:string
+    sourceRev:number
+    sourceStart:number
+    sourceEnd:number
+
+    targetUri:string
+    targetRev:number
+    targetStart:number
+    targetEnd:number
+}
 
 const Embed = Quill.import('blots/embed')
 
@@ -25,7 +41,7 @@ export class ExcerptedBlot extends Embed {
     // applications needing it should check externally before calling.
     public static value(domNode:Node): any {
         const node = domNode as HTMLElement
-        console.log('ExcerptedBlot::value:', domNode, super.value(domNode))
+        // console.log('ExcerptedBlot::value:', domNode, super.value(domNode))
         if(this.isValid(node))
             return this.composeSource(node)
         return false
@@ -40,7 +56,7 @@ export class ExcerptedBlot extends Embed {
             const targetRev = node.getAttribute("targetRev")
             const targetStart = node.getAttribute("targetStart")
             const targetEnd = node.getAttribute("targetEnd")
-            console.log('ExcerptedBlot::formats:', node, targetUri, targetRev, targetStart, targetEnd)
+            // console.log('ExcerptedBlot::formats:', node, targetUri, targetRev, targetStart, targetEnd)
             return {targetUri, targetRev, targetStart, targetEnd}
         }
         else
@@ -48,7 +64,7 @@ export class ExcerptedBlot extends Embed {
     }
 
     private static initNode(domNode:Node, value?: any):void {
-        console.log('ExcerptedBlot::initNode:', domNode, value)
+        // console.log('ExcerptedBlot::initNode:', domNode, value)
         const node = domNode as HTMLElement
         const {sourceUri, sourceRev, sourceStart, sourceEnd} = this.decomposeSource(value)
 
@@ -56,8 +72,11 @@ export class ExcerptedBlot extends Embed {
         node.setAttribute("sourceRev", sourceRev.toString())
         node.setAttribute("sourceStart", sourceStart.toString())
         node.setAttribute("sourceEnd", sourceEnd.toString())
+        if(value.copied)
+            node.setAttribute("copied", "true")
         // add icon
-        node.className = "fitted clone teal outline icon"
+        if(!value.copied)
+            node.className = "fitted copy outline small blue icon"
     }
 
     private static isValid(domNode:Node) {
@@ -65,7 +84,8 @@ export class ExcerptedBlot extends Embed {
         return (node.hasAttribute('sourceUri')
              && node.hasAttribute('sourceRev')
              && node.hasAttribute('sourceStart')
-             && node.hasAttribute('sourceEnd'))
+             && node.hasAttribute('sourceEnd')
+             && !node.hasAttribute('copied'))
     }
 
     private static decomposeSource(source:any) {
@@ -80,13 +100,18 @@ export class ExcerptedBlot extends Embed {
          "&end=" + node.getAttribute("sourceEnd"))
     }
 
-
-
     constructor(domNode: Node, value?: any) {
         super(domNode)
         const node = domNode as HTMLElement
-        node.addEventListener('click', () => {
-            console.log('clicked')
+        node.addEventListener('click', (event) => {
+            const data = this.data()
+            const sourceDoc = EditingState.findByURI(store.getState().thoughtLoggerApp.editing, data.sourceUri)
+            const targetDoc = EditingState.findByURI(store.getState().thoughtLoggerApp.editing, data.targetUri)
+
+            if(sourceDoc && targetDoc) {
+                event.stopImmediatePropagation()
+                store.dispatch(OpenExcerptDialog(targetDoc.id, data))
+            }
         })
     }
 
@@ -95,7 +120,7 @@ export class ExcerptedBlot extends Embed {
     }
 
     public formatAt(index: number, length: number, format: string, value: any) {
-        console.log('ExcerptedBlot.formatAt:', index, length, format, value)
+        // console.log('ExcerptedBlot.formatAt:', index, length, format, value)
         const node = (this.domNode as HTMLElement)
 
         for(const attr of ExcerptedBlot.ATTRIBUTES) {
@@ -135,14 +160,14 @@ export class ExcerptedBlot extends Embed {
 
     public value(): any {
         const node = (this.domNode as HTMLElement)
-        console.log('ExcerptedBlot.value', node, super.value())
+        // console.log('ExcerptedBlot.value', node, super.value())
         return {excerpted: ExcerptedBlot.composeSource(node)}
     }
 
     // Apply format to blot. Should not pass onto child or other blot.
     public format(format: string, value: any) {
         const node = this.domNode as HTMLElement
-        console.log('ExcerptedBlot.format:', format, value)
+        // console.log('ExcerptedBlot.format:', format, value)
         for(const attr of ExcerptedBlot.ATTRIBUTES) {
             if(format === attr)
                 node.setAttribute(format, value)
@@ -151,7 +176,23 @@ export class ExcerptedBlot extends Embed {
 
     // Return formats represented by blot, including from Attributors.
     public formats(): object {
-        console.log('ExcerptedBlot.formats', this.domNode, super.formats())
+        // console.log('ExcerptedBlot.formats', this.domNode, super.formats())
         return ExcerptedBlot.formats(this.domNode)
+    }
+
+    private data():ExcerptData {
+        // const {targetUri, targetRev, targetStart, targetEnd} = this.formats()
+        const node = this.domNode
+        const sourceUri = node.getAttribute("sourceUri")
+        const sourceRev = Number.parseInt(node.getAttribute("sourceRev"), 10)
+        const sourceStart = Number.parseInt(node.getAttribute("sourceStart"), 10)
+        const sourceEnd = Number.parseInt(node.getAttribute("sourceEnd"), 10)
+
+        const targetUri = node.getAttribute("targetUri")
+        const targetRev = Number.parseInt(node.getAttribute("targetRev"), 10)
+        const targetStart = Number.parseInt(node.getAttribute("targetStart"), 10)
+        const targetEnd = Number.parseInt(node.getAttribute("targetEnd"), 10)
+
+        return {sourceUri, sourceRev, sourceStart, sourceEnd, targetUri, targetRev, targetStart, targetEnd}
     }
   }

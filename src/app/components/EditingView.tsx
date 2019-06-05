@@ -25,8 +25,9 @@ export default class EditingView extends React.Component<IEditingProps> {
     }
 
     public render() {
-        console.log('EditingView.render', this.props)
+
         const { panes, activeIndex } = this.createTabPaneProperties(this.props.editors)
+        console.log('EditingView.render', this.props, activeIndex)
 
         return (
             <Container>
@@ -68,7 +69,7 @@ export default class EditingView extends React.Component<IEditingProps> {
                 },
                 render: () => (
                     <Tab.Pane>
-                        <EditorContainer {...editor} />
+                        <EditorContainer key={'editor'+ i} {...editor} />
                     </Tab.Pane>
                 )
             }

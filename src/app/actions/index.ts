@@ -13,9 +13,11 @@ import {
     CancelSaveDocAsAction,
     ChangeActiveEditorAction,
     ChangeEditorContentAction,
+    CloseExcerptDialogAction,
     CreateNewEmptyEditorAction,
+    OpenExcerptDialogAction,
     SaveDocAsAction,
-    TakeExcerptAction
+    TakeExcerptAction,
     } from "app/actions/EditorActions"
 import { LoadDocListAsyncAction,
     LoadDocListFailAction,
@@ -65,3 +67,5 @@ export type NavigationAction =
     LoadDocListSuccessAction |
     LoadDocListFailAction |
     OpenDocOnNewTabAction
+
+export type ExcerptDialogAction = OpenExcerptDialogAction | CloseExcerptDialogAction

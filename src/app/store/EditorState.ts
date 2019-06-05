@@ -35,7 +35,7 @@ export class EditorState implements IEditorState {
     public static updateContent(obj: EditorState, document: DocumentWithHistory) {
         return new EditorState(obj.id,
             obj.isPersisted ? obj.docId : undefined,
-            obj.isPersisted ? obj.uri : undefined,
+            obj.uri,
             document)
     }
 
@@ -58,7 +58,7 @@ export class EditorState implements IEditorState {
     }
 
     private static generateURI() {
-        return "noname_" + this.generateID().toString()
+        return "noname_" + this.generateID()
     }
 
     public readonly id: string

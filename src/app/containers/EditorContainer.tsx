@@ -43,10 +43,7 @@ const mapDispatchToProps = (
         },
         onTakeExcerpt: (id: string, excerptSource:ExcerptSource) => {
             dispatch(TakeExcerpt(id, excerptSource))
-        },
-        onPasteExcerpt: (id: string) => {
-            // dispatch(PasteExcerpt())
-        },
+        }
     }
 }
 

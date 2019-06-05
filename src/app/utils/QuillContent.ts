@@ -1,10 +1,10 @@
 import * as Quill from "quill"
-import { IDelta } from "text-versioncontrol";
+import { Change } from "text-versioncontrol";
 import * as _ from 'underscore'
 
 export class QuillContent
 {
-    public static isEqual(content1:IDelta, content2:IDelta)
+    public static isEqual(content1:Change, content2:Change)
     {
         return _.isEqual(
             JSON.parse(JSON.stringify(this.normalizeContent(content1))),
@@ -12,14 +12,14 @@ export class QuillContent
         )
     }
 
-    public static normalizeContent(content:IDelta)
+    public static normalizeContent(content:Change)
     {
         const newContent = this.normalizeLastNewLine(content)
         // TODO: extra merge
         return newContent
     }
 
-    public static normalizeLastNewLine(content:IDelta):IDelta {
+    public static normalizeLastNewLine(content:Change):Change {
         const insOp = {insert:"\n"}
         if(content.ops.length === 0)
             return {ops: [insOp]}
@@ -42,7 +42,7 @@ export class QuillContent
         return new QuillContent([{insert: str}])
     }
 
-    public static fromDelta(delta:IDelta) {
+    public static fromDelta(delta:Change) {
         return delta.ops ? new QuillContent(delta.ops) : new QuillContent([])
     }
 

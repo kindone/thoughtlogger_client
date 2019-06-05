@@ -5,7 +5,7 @@ import { BoundsStatic, Delta, DeltaOperation, DeltaStatic, RangeStatic, Sources 
 import * as React from 'react'
 import ReactQuill, {Quill as Quill} from 'react-quill'
 import { Button, Container } from 'semantic-ui-react'
-import { Document as DocumentWithHistory, IDelta, SharedString } from 'text-versioncontrol'
+import { Change, Document as DocumentWithHistory, SharedString } from 'text-versioncontrol'
 import { ExcerptSource } from 'text-versioncontrol/lib/excerpt';
 import * as _ from 'underscore'
 // import { ExcerptedBlot } from './Excerpted';
@@ -23,14 +23,16 @@ const TargetUri = new Parchment.Attributor.Attribute('targetUri', 'targetUri')
 const TargetRev = new Parchment.Attributor.Attribute("targetRev", "targetRev")
 const TargetStart = new Parchment.Attributor.Attribute("targetStart", "targetStart")
 const TargetEnd = new Parchment.Attributor.Attribute("targetEnd", "targetEnd")
+const Copied = new Parchment.Attributor.Attribute("copied", "copied")
 
 // Parchment.register(TargetUri)
 Quill.register("attributors/TargetUri", TargetUri)
 Quill.register("attributors/targetRev", TargetRev)
 Quill.register("attributors/TargetStart", TargetStart)
 Quill.register("attributors/TargetEnd", TargetEnd)
+Quill.register("attributors/Copied", Copied)
 
-const formats = ["excerpted", "targetUri", "targetRev", "targetStart", "targetEnd"]
+const formats = ["excerpted", "targetUri", "targetRev", "targetStart", "targetEnd", "copied"]
 
 export interface IEditorProps {
     id: string
@@ -45,7 +47,6 @@ export interface IEditorProps {
     onSaveAs?: (id: string, document: DocumentWithHistory) => void
     onReload?: (id: string) => void
     onTakeExcerpt?: (id: string, excerptSource:ExcerptSource) => void
-    onPasteExcerpt?: (id: string) => void
 }
 
 interface IEditorStates {
@@ -58,6 +59,7 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
     private modules:any
     private quillRef:Quill | null
     private reactQuillRef:ReactQuill | null
+    private defaultValue:DeltaStatic
 
     constructor(props: IEditorProps) {
         super(props)
@@ -113,9 +115,12 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
     }
 
     public componentWillReceiveProps(nextProps:IEditorProps) {
+        console.log('Editor.componentWillReceiveProps', nextProps)
         if(nextProps.document !== this.props.document) {
             // perform edit according to the document change
             // this.quillRef
+            if(!this.quillRef)
+                return
         }
     }
 
@@ -123,7 +128,12 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         console.log('Editor.render', this.props, this.props.document.getContent())
         // this.setState({content:this.props.content})
         // const value = {"ops":[{"insert":"Actual "},{"insert":{"excerpted":"doc1?rev=6"},"attributes":{"targetUri":"doc2","targetRev":9,"length":20}},{"insert":"prettier beautiful introduction here: Here comes the trouble. HAHAHAHA"}]} as DeltaStatic
-        const value = QuillContent.fromDelta(this.props.document.getContent()) as DeltaStatic
+
+        this.defaultValue = QuillContent.fromDelta(this.props.document.getContent()) as DeltaStatic
+        // if(this.quillRef && this.reactQuillRef) {
+        //     this.quillRef.setContents(QuillContent.fromDelta(this.props.document.getContent()) as DeltaStatic, "api")
+        //     this.quillRef.setSelection(0, 0, "api")
+        // }
 
         return (
             <Container>
@@ -131,10 +141,10 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
 
                 <Container>
                     <div className="scrolling-container">
-                        <ReactQuill
+                        <ReactQuill key={this.props.id}
                             ref={(el) => { this.reactQuillRef = el }}
                             className="quill-container"
-                            defaultValue={value}
+                            defaultValue={this.defaultValue}
                             bounds="scrolling-container"
                             onChange={this.handleChange}
                             onChangeSelection={this.handleSelectionChange}
@@ -148,7 +158,7 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
     }
 
     private handleChange(value: string, delta: Delta, source: Sources, editor:any) {
-        const content:IDelta = editor.getContents()
+        const content:Change = editor.getContents()
         console.log('Editor.handleChange:', this.props.id, value, delta, source, 'editor:', content, this.props.document)
 
         const changed = this.checkDelta(this.props.document.getContent(), {ops: delta.ops ? delta.ops : []}, content)
@@ -176,21 +186,6 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
         console.log('selection bound:', bound)
     }
 
-    private checkDelta(prev:IDelta, delta:IDelta, current:IDelta):boolean
-    {
-        if (!QuillContent.isEqual(prev, current)) {
-            const ss = SharedString.fromDelta(prev)
-            ss.applyChange(delta, "user")
-            if(!QuillContent.isEqual(ss.toDelta(), current) && QuillContent.isEqual(prev, this.state.content))
-                console.error('props.content:', prev, 'delta:', delta, 'applied:', ss.toDelta(), 'current:', current)
-            else if(QuillContent.isEqual(ss.toDelta(), current))
-                console.log('delta:', delta)
-
-            return true
-        }
-        return false
-    }
-
     private handleSave() {
         console.log('Editor.handleSave', this.props.id, this.props)
         if (!this.props.isPersisted) {
@@ -210,7 +205,7 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
     }
 
     private handlePasteExcerpt(range:{index:number, length:number}, context:any) {
-        if(this.quillRef && this.props.excerpt && this.props.onPasteExcerpt) {
+        if(this.quillRef && this.props.excerpt) {
             const newDocument = this.props.document.clone()
             newDocument.pasteExcerpt(range.index, this.props.excerpt)
             const change = newDocument.getChange(newDocument.getCurrentRev()-1)[0]
@@ -218,6 +213,22 @@ export default class Editor extends React.Component<IEditorProps, IEditorStates>
             this.quillRef.updateContents(change as DeltaStatic, "api")
         }
     }
+
+    private checkDelta(prev:Change, delta:Change, current:Change):boolean
+    {
+        if (!QuillContent.isEqual(prev, current)) {
+            const ss = SharedString.fromDelta(prev)
+            ss.applyChange(delta, "user")
+            if(!QuillContent.isEqual(ss.toDelta(), current) && QuillContent.isEqual(prev, this.state.content))
+                console.error('props.content:', prev, 'delta:', delta, 'applied:', ss.toDelta(), 'current:', current)
+            else if(QuillContent.isEqual(ss.toDelta(), current))
+                console.log('delta:', delta)
+
+            return true
+        }
+        return false
+    }
+
 
     private attachQuillRefs() {
         if (this.reactQuillRef && typeof this.reactQuillRef.getEditor === 'function')

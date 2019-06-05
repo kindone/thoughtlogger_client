@@ -1,6 +1,8 @@
 import { createAction, createActionWithPayload } from 'app/actions/helpers'
+import { ExcerptData } from 'app/components/ExcerptedBlot';
 import { Document as DocumentWithHistory} from "text-versioncontrol";
 import { ExcerptSource } from 'text-versioncontrol/lib/excerpt';
+
 
 
 export const CREATE_EMPTY_EDITOR = 'editor/create_empty_editor'
@@ -12,6 +14,8 @@ export const CHANGE_ACTIVE_EDITOR = 'editor/change_active_editor'
 export const CHANGE_EDITOR_DOCUMENT = 'editor/change_editor_document'
 
 export const TAKE_EXCERPT = 'editor/take_excerpt'
+export const OPEN_EXCERPT_DIALOG = 'editor/open_excerpt_dialog'
+export const CLOSE_EXCERPT_DIALOG = 'editor/close_excerpt_dialog'
 
 export function ChangeActiveEditor(editorId: string) {
     return createActionWithPayload(CHANGE_ACTIVE_EDITOR, {id: editorId})
@@ -37,9 +41,19 @@ export function TakeExcerpt(id: string, excerptSource:ExcerptSource) {
     return createActionWithPayload(TAKE_EXCERPT, { id, excerptSource })
 }
 
+export function OpenExcerptDialog(id: string, data:ExcerptData) {
+    return createActionWithPayload(OPEN_EXCERPT_DIALOG, { id, data })
+}
+
+export function CloseExcerptDialog() {
+    return createActionWithPayload(CLOSE_EXCERPT_DIALOG, { })
+}
+
 export type ChangeActiveEditorAction = ReturnType<typeof ChangeActiveEditor>
 export type CreateNewEmptyEditorAction = ReturnType<typeof CreateNewEmptyEditor>
 export type ChangeEditorContentAction = ReturnType<typeof ChangeEditorContent>
 export type SaveDocAsAction = ReturnType<typeof SaveDocAs>
 export type CancelSaveDocAsAction = ReturnType<typeof CancelSaveDocAs>
 export type TakeExcerptAction = ReturnType<typeof TakeExcerpt>
+export type OpenExcerptDialogAction = ReturnType<typeof OpenExcerptDialog>
+export type CloseExcerptDialogAction = ReturnType<typeof CloseExcerptDialog>
